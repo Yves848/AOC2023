@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.612,=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023-12-01 14:58:40.686,=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023-12-01 14:59:08.596,C:\Users\yvesg\git\AOC2023\DAY01\Delphi12\Part1.pas=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023-12-01 14:59:08.596,C:\Users\yvesg\git\AOC2023\DAY01\Delphi12\Part1.dfm=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2023-12-01 14:59:16.832,C:\Users\yvesg\git\AOC2023\DAY01\Delphi12\DAY01.dproj=C:\Users\yvesg\Documents\Embarcadero\Studio\Projects\Project2.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
