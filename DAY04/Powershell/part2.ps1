@@ -4,7 +4,7 @@ class Card {
   [string]$name
   [int[]]$numbers
   [int[]]$mynumbers
-  [bool]$winning
+  [int]$winning
   [int]$score
 
   Card(
@@ -13,7 +13,7 @@ class Card {
     $this.name = $name
     $this.numbers = @()
     $this.mynumbers = @()
-    $this.winning = $false
+    $this.winning = 0 
     $this.score = 0
   }
 
@@ -29,9 +29,10 @@ class Card {
         else {
           $this.score = $this.score * 2
         }
+        $this.winning = $this.winning + 1
       } 
     }
-    $this.winning = ($this.score -gt 0)
+    
   }
 }
 
@@ -57,4 +58,5 @@ foreach ($line in $lines) {
   $ocard.isWinning()
   $cards += $ocard
 }
-($cards | Select-Object -ExpandProperty score | Measure-Object -Sum).sum 
+
+$cards
