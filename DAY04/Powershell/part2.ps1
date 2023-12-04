@@ -19,11 +19,9 @@ class Card {
 
   isWinning(
   ) {
-   
     foreach ($point in $this.mynumbers) {
       if (($this.numbers.IndexOf($point) -ne -1)) {
         if ($this.score -eq 0) {
-         
           $this.score = $this.score + 1
         }
         else {
@@ -32,17 +30,10 @@ class Card {
         $this.winning = $this.winning + 1
       } 
     }
-    
   }
 }
 
 $cards = @()
-$mynumbers = [ordered]@{}
-$scores = [ordered]@{}
-$cards2 = [ordered]@{}
-
-
-
 foreach ($line in $lines) {
   [string]$card, $numbers = $line.Split('|')
   $cardnum, $num = $card.Split(":")
