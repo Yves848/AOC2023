@@ -7,7 +7,7 @@ function gauche(
 ) {
   $num = $r.Matches($line)
   foreach($n in $num) {
-    if ($col -in ($n.Index) .. ($n.Index+($n.Length-1))) {
+    if ($col -in ($n.Index) .. ($n.Index+($n.Length))) {
       return $n.Value
     }
   }
@@ -17,46 +17,46 @@ function droite(
 ) {
   $num = $rr.Matches($line)
   foreach($n in $num) {
-    if ($col -in ($n.Index) .. ($n.Index+($n.Length-1))) {
+    if ($col -in ($n.Index+1) .. ($n.Index+($n.Length))) {
       return $n.Value
     }
   }
 }
 
 function isAdjacent(
-  [int]$col
+  [int]$col,
+  [string]$ligne
 ) {
   $nb = @()
-  $l = $lines.IndexOf($line)
-  $line = $lines[$l]
-  $value = gauche -line $line
+  $l = $lines.IndexOf($ligne)
+  $value = gauche -line $ligne
   if ($value) { $nb += $value }
-  $value = droite -line $line
+  $value = droite -line $ligne
   if ($value) { $nb += $value }
   
-  $line = $lines[$l - 1]
-  $num = $r.Matches($line)
+  $ligne = $lines[$l - 1]
+  $num = $r.Matches($ligne)
   foreach($n in $num) {
     if ($col -in ($n.Index-1) .. ($n.Index+($n.Length))) {
       $nb += $n.Value
     }
   }
   
-  $line = $lines[$l + 1]
-  $num = $r.Matches($line)
+  $ligne = $lines[$l + 1]
+  $num = $r.Matches($ligne)
   foreach($n in $num) {
-    if ($col -in ($n.Index-1) .. ($n.Index+($n.Length))) {
+    if ($col -in ($n.Index-1) .. ($n.Index+($n.Length))+1) {
       $nb += $n.Value
     }
   }
   return $nb
 }
-
+Remove-Item -Path .\restult.txt -Force -ErrorAction Ignore
 $sum = 0
 foreach ($line in $lines) {
   $stars = $r2.Matches($line)
   foreach ($star in $stars) {
-    $res = isAdjacent -col $star.Index
+    $res = isAdjacent -col $star.Index -ligne $line
     if ($res.Count -eq 2) {
       $sum = $sum + ([int]$res[0]*[int]$res[1])
       "$($res[0]),$($res[1])" | Out-File -FilePath "restult.txt" -Append
