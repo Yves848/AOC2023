@@ -1,4 +1,4 @@
-$lines = Get-Content -Path ..\data.txt -Raw
+$lines = Get-Content -Path ..\example.txt -Raw
 
 $seed, $maps = $lines -Split ('\n\n')
 $rseedpairs = [regex]::new("(\d{1,})\s(\d{1,})")
@@ -19,10 +19,11 @@ $seeds = @()
 
 $rseedpairs.Matches($seed) | % {
   [int64]$d1, [int64]$d2 = $_.Value -split " "
-  [int64]$i64 = 0
+  $d2 = $d1 + $d2
+  [int64]$i64 = $d1
   # Write-Host "$i64"
   while ($i64 -lt $d2) {
-    $seed = [int64]($d1 + $i64)
+    $seed = $i64
     #     $i64 = $i64 + 1
     #     if (($i64 % 10000) -eq 0) {
     #       Write-Host 
@@ -58,21 +59,6 @@ $rseedpairs.Matches($seed) | % {
         }
         $i = $i + 1
       }
-      # if ($map -cmatch "to-fertilizer") {
-      #   $fertilizers += $l 
-      # }
-      # if ($map -cmatch "to-soil") {
-      #   $soils += $l 
-      # }
-      # if ($map -cmatch "to-water") {
-      #   $water += $l 
-      # }
-      # if ($map -cmatch "to-temperature") {
-      #   $temperature += $l 
-      # }
-      # if ($map -cmatch "to-humidity") {
-      #   $humidity += $l 
-      # }
       if ($map -cmatch "to-location") {
         # $locations += $l
         if ($l -lt $min) {
@@ -80,12 +66,11 @@ $rseedpairs.Matches($seed) | % {
           Write-Host "New Seed : $min" -ForegroundColor Blue
         } 
       }
-      # if ($map -cmatch "to-light") {
-      #   $light += $l 
-      # }
-      # Write-Host "seed $l" -ForegroundColor Red
     } 
-  $i64 = $i64+1
+    $i64 = $i64 + 1
+    if (($i64 % 10000) -eq 0) {
+      Write-Host "i64 $i64 "
+    }
   }
 }
 #Destination Source Len

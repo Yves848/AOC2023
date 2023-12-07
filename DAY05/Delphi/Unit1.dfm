@@ -40,6 +40,7 @@ object Form1: TForm1
     Height = 25
     Caption = 'Button1'
     TabOrder = 2
+    OnClick = Button1Click
   end
   object Memo2: TMemo
     Left = 648
@@ -57,14 +58,16 @@ object Form1: TForm1
     Height = 25
     Caption = 'Button2'
     TabOrder = 4
+    OnClick = Button2Click
   end
   object Memo3: TMemo
     Left = 648
     Top = 360
     Width = 561
-    Height = 257
+    Height = 513
     Lines.Strings = (
       'Memo3')
+    ScrollBars = ssVertical
     TabOrder = 5
   end
 end
