@@ -1,8 +1,8 @@
 seeds: 79 14 55 13
 
-seed-to-soil map:
-50 98 2
-52 50 48
+seed-to-soil map:       Destination   Source
+50 98 2                 50,51         98,99
+52 50 48                52,99         50,97
 
 soil-to-fertilizer map:
 0 15 37

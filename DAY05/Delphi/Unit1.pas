@@ -92,6 +92,7 @@ begin
   regEx := TRegEx.create('(\d{1,})\s(\d{1,})');
   Matches := regEx.Matches(res[0]);
   pSeeds := tlist<tSeed>.create;
+
   for Match in Matches do
   begin
     if Match.Success then
@@ -121,46 +122,37 @@ begin
     // Pour chaque seed, parcourir les différentes maps pour trouver la location la plus proche.
     while (j < (Seed1 + nbSeeds)) do
     begin
-        if (j mod 1000000 = 0) then
+      if (j mod 1000000 = 0) then
+      begin
+        Memo3.Lines.Add(format('J : %u', [j]));
+        Application.ProcessMessages;
+      end;
+      seed2 := J;
+      mapEnum := pmaps.GetEnumerator();
+      while mapEnum.MoveNext do
+      begin
+        coordEnum := mapEnum.current.Coords.GetEnumerator();
+
+        while coordEnum.MoveNext do
         begin
-          Memo3.Lines.Add(format('J : %u',[j]));
-          Application.ProcessMessages;
-        end;
-//      if (j = 82) then
-//      begin
-
-        //sLine := format('Seed %u', [j]);
-        //Memo3.Lines.Add(sLine);
-
-        // Parcourir les différentes maps pour convertir la valeur de la seed.
-        seed2 := J;
-        mapEnum := pmaps.GetEnumerator();
-        while mapEnum.MoveNext do
-        begin
-          //sLine := format('%s', [mapEnum.current.name]);
-          //Memo3.Lines.Add('       ' + sLine);
-          coordEnum := mapEnum.current.Coords.GetEnumerator();
-
-          while coordEnum.MoveNext do
-          begin
-            // commencer le mapping des seeds
-            j2 := coordEnum.current.index(Seed2);
-            //Memo3.Lines.Add('           ' + coordEnum.current.versString() + format('  Seed2 : %u j2 : %u', [Seed2, j2]));
-            if (mapEnum.Current.name.Contains('to-loca')) then
-                if (seedLocation > Seed2) then
-                begin
-                  SeedLocation := Seed2;
-                   Memo2.Lines.Add(seedLocation.tostring());
-                   Application.ProcessMessages;
-                end;
-            if (j2 <> seed2) then
+          // commencer le mapping des seeds
+          j2 := coordEnum.current.index(Seed2);
+          if (mapEnum.Current.name.Contains('to-loca')) then
+            if (seedLocation > Seed2) then
             begin
-              Seed2 := j2;
-              break;
+              SeedLocation := Seed2;
+              Memo2.Lines.Add(seedLocation.tostring());
+              Application.ProcessMessages;
             end;
+          if (j2 <> seed2) then
+          begin
+            Seed2 := j2;
+            break;
           end;
         end;
-      //end;
+        coordEnum.Free;
+      end;
+      mapEnum.Free;
       inc(j);
     end;
   end;
