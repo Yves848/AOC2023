@@ -22,6 +22,8 @@ type
     Memo2: TMemo;
     Button1: TButton;
     Button2: TButton;
+    Label1: TLabel;
+    lblProgres: TLabel;
     procedure cbFichierChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -31,6 +33,8 @@ type
     directions: tarray<char>;
     nodes: tDictionary<string, tarray<string>>;
     nodesGhost: tGhostDictionary;
+    regexZ: tregex;
+
     procedure CreeDirections(line: string);
     procedure CreeNodes(line: string);
     procedure parsefile;
@@ -128,6 +132,10 @@ begin
     keys := tlist<string>.create(nexts);
     Nexts.Free;
     inc(i);
+    if (i mod 100 = 0) then begin
+      lblProgres.caption := i.ToString();
+      application.ProcessMessages;
+    end;
     if isAllZ(keys) then
     break;
     inc(iDir);
@@ -167,9 +175,6 @@ var
 begin
   if (line.Trim() <> '') then
   begin
-    // Regex Partie 2
-    //\b\w*A\b
-    //\b\w*Z\b
     regEx := tRegex.create('\b\w{3}\b');
     regEx2 := tRegex.Create('\b\w*A\b');
     Matches := regEx.Matches(line);
@@ -205,21 +210,21 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
+  regexZ := tRegex.Create('\b\w*Z\b');
   cbFichierChange(sender);
 end;
 
 function TForm1.isAllZ(Keys: tList<String>): boolean;
 var
-  regex: tregex;
   keyEnum : TEnumerator<string>;
 begin
-   regex := tRegex.Create('\b\w*Z\b');
    result := true;
    keyEnum := keys.GetEnumerator();
    while keyEnum.MoveNext do
    begin
-    result := result and regex.isMatch(keyEnum.Current);
+    result := result and regexZ.isMatch(keyEnum.Current);
    end;
+   Application.ProcessMessages;
 
 end;
 

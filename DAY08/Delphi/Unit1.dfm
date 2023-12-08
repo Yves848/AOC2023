@@ -22,6 +22,20 @@ object Form1: TForm1
     Height = 15
     Caption = 'Fichier'
   end
+  object Label1: TLabel
+    Left = 816
+    Top = 60
+    Width = 54
+    Height = 15
+    Caption = 'Progress : '
+  end
+  object lblProgres: TLabel
+    Left = 871
+    Top = 60
+    Width = 130
+    Height = 15
+    AutoSize = False
+  end
   object cbFichier: TComboBox
     Left = 8
     Top = 24
