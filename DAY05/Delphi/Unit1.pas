@@ -38,6 +38,7 @@ type
     name: string;
     Coords: tlist<tcoord>;
     constructor create(line: string);
+    function Range(i : Integer) : String;
   end;
 
   TForm1 = class(TForm)
@@ -50,6 +51,8 @@ type
     Memo4: TMemo;
     Label1: TLabel;
     eStep: TEdit;
+    Label2: TLabel;
+    Label3: TLabel;
     procedure ComboBox1Change(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -78,9 +81,7 @@ var
   str: string;
   res: tarray<string>;
   i: integer;
-  seedEnum: tEnumerator<tSeed>;
-  mapEnum: tEnumerator<tmap>;
-  coordEnum: tEnumerator<tcoord>;
+  iSeeds, iMaps, iCoords : Int64;
   regEx: TRegEx;
   Match: tMatch;
   Matches: TMatchCollection;
@@ -93,6 +94,7 @@ var
   j2: Int64;
   j: Int64;
   sLine: string;
+  aCoord : tCoord;
 begin
   Memo3.Clear;
   Memo2.Clear;
@@ -121,33 +123,34 @@ begin
   end;
   // Les maps sont créées .....
 
-  seedEnum := pSeeds.GetEnumerator();
-  while seedEnum.MoveNext do
+  iSeeds := 0;
+  while iSeeds < pSeeds.Count do
     // Parcourir les paires de seeds ......
   begin
-    sLine := format('Seed %u - %u', [seedEnum.current.Start, seedEnum.current.Nb]);
+    sLine := format('Seed %u - %u', [pSeeds[iSeeds].Start, pSeeds[iSeeds].Nb]);
     Memo2.Lines.Add(sLine);
-    Seed1 := seedEnum.current.Start;
+    Seed1 := pSeeds[iSeeds].Start;
     j := Seed1;
-    nbSeeds := seedEnum.current.Nb;
+    nbSeeds := pSeeds[iSeeds].Nb;
     // Pour chaque seed, parcourir les différentes maps pour trouver la location la plus proche.
     while (j < (Seed1 + nbSeeds)) do
     begin
       if (j mod 1000000 = 0) then
       begin
-        eStep.Text := (format('J : %u', [j]));
+        eStep.Text := (format('Start : %u J : %u End : %u', [pSeeds[iSeeds].Start,j,pSeeds[iSeeds].nb]));
         Application.ProcessMessages;
       end;
       seed2 := J;
-      mapEnum := pmaps.GetEnumerator();
-      while mapEnum.MoveNext do
+      iMaps := 0;
+      while iMaps < pMaps.Count do
       begin
-        coordEnum := mapEnum.current.Coords.GetEnumerator();
-        while coordEnum.MoveNext do
+        iCoords := 0;
+        while iCoords < pMaps[iMaps].Coords.count do
         begin
           // commencer le mapping des seeds
-          j2 := coordEnum.current.index(Seed2);
-          if (mapEnum.Current.name.Contains('to-loca')) then
+          aCoord := pMaps[iMaps].Coords[iCoords];
+          j2 := aCoord.index(Seed2);
+          if (pMaps[iMaps].name.Contains('to-loca')) then
             if (seedLocation > Seed2) then
             begin
               SeedLocation := Seed2;
@@ -157,39 +160,77 @@ begin
           if (j2 <> seed2) then
           begin
             Seed2 := j2;
-            break;
+            iCoords := pMaps[iMaps].Coords.count;
           end;
+          inc(iCoords);
         end;
-        coordEnum.Free;
+        inc(iMaps);
       end;
-      mapEnum.Free;
       inc(j);
     end;
+    inc(iSeeds);
   end;
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
   SeedEnum : TEnumerator<tSeed>;
+  iMaps : int64;
+  iCoords : Int64;
 begin
+  // Lister les seeds
+
+  Memo3.Lines.Add('Seeds : ');
+  Memo3.Lines.Add('--------');
+
   SeedEnum := pSeeds.GetEnumerator();
   while SeedEnum.MoveNext do
   begin
-    memo4.Lines.Add(seedEnum.Current.range);
+    memo3.Lines.Add(seedEnum.Current.range);
   end;
   SeedEnum.Free;
+
+  // Lister les maps
+
+  Memo3.Lines.Add('Maps : ');
+  Memo3.Lines.Add('--------');
+
+  iMaps := 0;
+  while (iMaps < pMaps.Count) do
+  begin
+       Memo3.Lines.Add(pMaps[iMaps].name);
+       iCoords := 0;
+       while (iCoords < pMaps[iMaps].Coords.Count) do
+       begin
+         Memo3.Lines.Add(pMaps[iMaps].Range(iCoords));
+         inc(icoords);
+       end;
+       inc(iMaps);
+  end;
 end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
 begin
   Memo1.Lines.LoadFromFile(tPath.Combine('..\..\..\', ComboBox1.Text));
   parseFile;
+  Memo2.Clear;
+  Memo3.Clear;
+  Memo4.Clear;
 end;
 
 procedure TForm1.createmaps;
-
+var
+  i : Integer; //ligne de map.
 begin
-
+  if pMaps <> Nil then
+    FreeAndNil(pMaps);
+  pMaps := tlist<tmap>.Create;
+  I := 1;
+  while i < length(res) do
+  begin
+    pMaps.add(tMap.create(res[I]));
+    inc(i);
+  end;
 end;
 
 procedure TForm1.createSeeds(line: string);
@@ -226,6 +267,7 @@ begin
     res := nil;
   res := str.Split([DL]);
   createSeeds(res[0]);
+  createmaps;
 end;
 
 { tmap }
@@ -249,6 +291,16 @@ begin
     Coords.Add(pCoord);
     inc(i);
   end;
+end;
+
+function tmap.Range(i: Integer): String;
+begin
+    if ((i > (Coords.Count-1)) or (i < 0)) then
+      result := 'No coordinates found'
+    else
+    begin
+       result := format('Desination : [%u - %u] Source : [%u - %u]', [Coords[i].destination,(Coords[i].destination+Coords[i].L)-1,Coords[i].source,(Coords[i].source+Coords[i].L)-1]);
+    end;
 end;
 
 { tcoord }

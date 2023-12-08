@@ -22,6 +22,20 @@ object Form1: TForm1
     Height = 15
     Caption = 'Step'
   end
+  object Label2: TLabel
+    Left = 648
+    Top = 115
+    Width = 30
+    Height = 15
+    Caption = 'Seeds'
+  end
+  object Label3: TLabel
+    Left = 936
+    Top = 115
+    Width = 46
+    Height = 15
+    Caption = 'Location'
+  end
   object ComboBox1: TComboBox
     Left = 8
     Top = 8
@@ -43,6 +57,7 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akBottom]
     TabOrder = 1
     WordWrap = False
+    ExplicitHeight = 824
   end
   object Button1: TButton
     Left = 648
@@ -69,6 +84,7 @@ object Form1: TForm1
     Caption = 'Generate Maps'
     TabOrder = 4
     OnClick = Button2Click
+    ExplicitWidth = 292
   end
   object Memo3: TMemo
     Left = 648
@@ -78,6 +94,8 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     ScrollBars = ssVertical
     TabOrder = 5
+    ExplicitWidth = 580
+    ExplicitHeight = 515
   end
   object Memo4: TMemo
     Left = 936
@@ -86,7 +104,7 @@ object Form1: TForm1
     Height = 204
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 6
-    ExplicitWidth = 273
+    ExplicitWidth = 292
   end
   object eStep: TEdit
     Left = 683
@@ -95,5 +113,6 @@ object Form1: TForm1
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 7
+    ExplicitWidth = 545
   end
 end
