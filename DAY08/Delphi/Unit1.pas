@@ -13,22 +13,28 @@ const
 
 type
 
+  tGhostDictionary = tDictionary<string, tarray<string>>;
+
   TForm1 = class(TForm)
     cbFichier: TComboBox;
     Fichier: TLabel;
     Memo1: TMemo;
     Memo2: TMemo;
     Button1: TButton;
+    Button2: TButton;
     procedure cbFichierChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
     directions: tarray<char>;
     nodes: tDictionary<string, tarray<string>>;
+    nodesGhost: tGhostDictionary;
     procedure CreeDirections(line: string);
     procedure CreeNodes(line: string);
     procedure parsefile;
+    function isAllZ(Keys : tList<String>) : boolean;
   public
     { Public declarations }
   end;
@@ -57,6 +63,7 @@ begin
       'L':
         begin
           key := pNode[0]
+
         end;
       'R':
         begin
@@ -72,10 +79,64 @@ begin
     inc(iDir);
     if (iDir > high(directions)) then
       iDir := low(directions);
-
     Nodes.TryGetValue(key, pNode);
   end;
   Memo2.Lines.Add(i.ToString());
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  ghostEnum: TEnumerator<string>;
+  i: integer;
+  iDir: integer;
+  keys: tlist<string>;
+  key: string;
+  next: string;
+  pNode: tArray<string>;
+  nexts: tlist<string>;
+begin
+  i := 0;
+  iDir := low(directions);
+  keys := tlist<string>.create;
+
+  ghostEnum := nodesGhost.Keys.GetEnumerator();
+  while ghostEnum.MoveNext do
+  begin
+    keys.Add(ghostEnum.Current);
+  end;
+
+  while true do
+  begin
+    nexts := tlist<string>.create;
+    for key in keys do
+    begin
+      nodes.TryGetValue(key, pnode);
+      case directions[iDir] of
+        'L':
+          begin
+            next := pNode[0];
+            nexts.Add(next);
+          end;
+        'R':
+          begin
+            next := pNode[1];
+            nexts.Add(next);
+          end;
+      end;
+    end;
+    keys.Free;
+    keys := tlist<string>.create(nexts);
+    Nexts.Free;
+    inc(i);
+    if isAllZ(keys) then
+    break;
+    inc(iDir);
+    if (iDir > high(directions)) then
+      iDir := low(directions);
+
+  end;
+
+  memo2.Lines.Add(i.ToString());
 end;
 
 procedure TForm1.cbFichierChange(Sender: TObject);
@@ -97,14 +158,20 @@ procedure TForm1.CreeNodes(line: string);
 var
   key, left, right: string;
   regex: tregex;
+  regex2: tregex;
   Matches: TMatchCollection;
   Match: tMAtch;
+  Match2: tMAtch;
   i: Integer;
   pNodes: tarray<string>;
 begin
   if (line.Trim() <> '') then
   begin
-    regEx := tRegex.create('\b[a-zA-Z]{3}\b');
+    // Regex Partie 2
+    //\b\w*A\b
+    //\b\w*Z\b
+    regEx := tRegex.create('\b\w{3}\b');
+    regEx2 := tRegex.Create('\b\w*A\b');
     Matches := regEx.Matches(line);
     I := 0;
     for match in Matches do
@@ -114,6 +181,10 @@ begin
           0:
             begin
               key := Match.Value;
+              if (regex2.isMatch(key)) then
+              begin
+                nodesGhost.Add(key, []);
+              end;
             end;
           1:
             begin
@@ -137,6 +208,21 @@ begin
   cbFichierChange(sender);
 end;
 
+function TForm1.isAllZ(Keys: tList<String>): boolean;
+var
+  regex: tregex;
+  keyEnum : TEnumerator<string>;
+begin
+   regex := tRegex.Create('\b\w*Z\b');
+   result := true;
+   keyEnum := keys.GetEnumerator();
+   while keyEnum.MoveNext do
+   begin
+    result := result and regex.isMatch(keyEnum.Current);
+   end;
+
+end;
+
 procedure TForm1.parsefile;
 var
   str: string;
@@ -148,7 +234,9 @@ begin
   directions := nil;
   creeDirections(res[0]);
   nodes.Free;
+  nodesGhost.Free;
   Nodes := tDictionary < string, tarray<string> > .create;
+  nodesGhost := tGhostDictionary.Create();
   i := 1;
   while (i < length(res)) do
   begin
