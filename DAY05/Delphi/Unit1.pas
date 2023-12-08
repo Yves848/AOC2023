@@ -26,9 +26,11 @@ type
 
   tSeed = class
   public
-    d1: Int64;
-    d2: Int64;
+    Start: Int64;
+    Nb: Int64;
     constructor create(line: string);
+    function range: string;
+    function enum: string;
   end;
 
   tmap = class
@@ -45,13 +47,21 @@ type
     Memo2: TMemo;
     Button2: TButton;
     Memo3: TMemo;
+    Memo4: TMemo;
+    Label1: TLabel;
+    eStep: TEdit;
     procedure ComboBox1Change(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
+    procedure parseFile;
+    procedure createSeeds(line: string);
+    procedure createmaps;
   public
     { Public declarations }
+    res: tArray<string>;
     pmaps: tlist<tmap>;
     pSeeds: tlist<tSeed>;
   end;
@@ -86,6 +96,7 @@ var
 begin
   Memo3.Clear;
   Memo2.Clear;
+  Memo4.Clear;
   str := Memo1.Lines.Text;
   res := str.Split([DL]);
   seedLocation := high(Int64);
@@ -114,17 +125,17 @@ begin
   while seedEnum.MoveNext do
     // Parcourir les paires de seeds ......
   begin
-    sLine := format('Seed %u - %u', [seedEnum.current.d1, seedEnum.current.d2]);
+    sLine := format('Seed %u - %u', [seedEnum.current.Start, seedEnum.current.Nb]);
     Memo2.Lines.Add(sLine);
-    Seed1 := seedEnum.current.d1;
+    Seed1 := seedEnum.current.Start;
     j := Seed1;
-    nbSeeds := seedEnum.current.d2;
+    nbSeeds := seedEnum.current.Nb;
     // Pour chaque seed, parcourir les différentes maps pour trouver la location la plus proche.
     while (j < (Seed1 + nbSeeds)) do
     begin
       if (j mod 1000000 = 0) then
       begin
-        Memo3.Lines.Add(format('J : %u', [j]));
+        eStep.Text := (format('J : %u', [j]));
         Application.ProcessMessages;
       end;
       seed2 := J;
@@ -132,7 +143,6 @@ begin
       while mapEnum.MoveNext do
       begin
         coordEnum := mapEnum.current.Coords.GetEnumerator();
-
         while coordEnum.MoveNext do
         begin
           // commencer le mapping des seeds
@@ -141,7 +151,7 @@ begin
             if (seedLocation > Seed2) then
             begin
               SeedLocation := Seed2;
-              Memo2.Lines.Add(seedLocation.tostring());
+              Memo4.Lines.Add(seedLocation.tostring());
               Application.ProcessMessages;
             end;
           if (j2 <> seed2) then
@@ -160,28 +170,62 @@ end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
-  i: integer;
-  Enum: tEnumerator<tmap>;
-  Coords: tEnumerator<tcoord>;
+  SeedEnum : TEnumerator<tSeed>;
 begin
-  Memo3.Clear;
-  Enum := pmaps.GetEnumerator();
-  while Enum.MoveNext do
+  SeedEnum := pSeeds.GetEnumerator();
+  while SeedEnum.MoveNext do
   begin
-    Memo3.Lines.Add(Enum.current.name);
-    Coords := Enum.current.Coords.GetEnumerator();
-    while Coords.MoveNext do
-    begin
-      Memo3.Lines.Add(Coords.current.ToString());
-    end;
-    Coords.Free;
+    memo4.Lines.Add(seedEnum.Current.range);
   end;
-  Enum.Free;
+  SeedEnum.Free;
 end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
 begin
   Memo1.Lines.LoadFromFile(tPath.Combine('..\..\..\', ComboBox1.Text));
+  parseFile;
+end;
+
+procedure TForm1.createmaps;
+
+begin
+
+end;
+
+procedure TForm1.createSeeds(line: string);
+var
+  Regex: tRegEx;
+  Matches: TMatchCollection;
+  Match: tMatch;
+  res: tarray<string>;
+begin
+  if pSeeds <> nil then
+    FreeandNil(pSeeds);
+  pSeeds := tlist<tSeed>.Create;
+
+  regEx := TRegEx.create('(\d{1,})\s(\d{1,})');
+  Matches := regex.Matches(line);
+  for Match in Matches do
+  begin
+    if Match.Success then
+      pseeds.Add(tseed.create(Match.Value));
+  end;
+end;
+
+procedure TForm1.FormShow(Sender: TObject);
+begin
+  ComboBox1Change(sender);
+end;
+
+procedure TForm1.parseFile;
+var
+  str: string;
+begin
+  str := Memo1.Lines.Text;
+  if length(res) > 0 then
+    res := nil;
+  res := str.Split([DL]);
+  createSeeds(res[0]);
 end;
 
 { tmap }
@@ -255,8 +299,25 @@ var
   bornes: tarray<string>;
 begin
   bornes := line.Split([' ']);
-  d1 := strtoint64(bornes[0]);
-  d2 := strtoint64(bornes[1]);
+  Start := strtoint64(bornes[0]);
+  nb := strtoint64(bornes[1]);
+end;
+
+function tSeed.enum: string;
+var
+  I: Integer;
+begin
+  result := format('%u', [Start]);
+  for I := 1 to nb-1 do
+  begin
+    result := result + format(',%u',[Start+i])
+  end;
+  result := '['+result+']';
+end;
+
+function tSeed.range: string;
+begin
+  result := format('%u-%u', [start, (start + nb) - 1]);
 end;
 
 end.
