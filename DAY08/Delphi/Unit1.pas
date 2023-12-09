@@ -3,7 +3,7 @@ unit Unit1;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, System.IOUtils,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics, System.IOUtils, System.StrUtils,
   System.Generics.Collections, System.RegularExpressions,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
 
@@ -24,10 +24,12 @@ type
     Button2: TButton;
     Label1: TLabel;
     lblProgres: TLabel;
+    Button3: TButton;
     procedure cbFichierChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
     directions: tarray<char>;
@@ -38,9 +40,10 @@ type
     procedure CreeDirections(line: string);
     procedure CreeNodes(line: string);
     procedure parsefile;
-    function isAllZ(Keys : tList<String>) : boolean;
+    function isAllZ(Keys: tList<string>): boolean;
   public
     { Public declarations }
+    pause: boolean;
   end;
 
 var
@@ -108,9 +111,11 @@ begin
   begin
     keys.Add(ghostEnum.Current);
   end;
-
+  Memo2.Lines.Add(string.Join('   ', Keys.ToArray()));
   while true do
   begin
+    while (Pause) do
+      Application.ProcessMessages;
     nexts := tlist<string>.create;
     for key in keys do
     begin
@@ -132,12 +137,13 @@ begin
     keys := tlist<string>.create(nexts);
     Nexts.Free;
     inc(i);
-    if (i mod 100 = 0) then begin
+    if isAllZ(keys) then
+      break;
+    if (i mod 100 = 0) then
+    begin
       lblProgres.caption := i.ToString();
       application.ProcessMessages;
     end;
-    if isAllZ(keys) then
-    break;
     inc(iDir);
     if (iDir > high(directions)) then
       iDir := low(directions);
@@ -145,6 +151,11 @@ begin
   end;
 
   memo2.Lines.Add(i.ToString());
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  pause := not pause;
 end;
 
 procedure TForm1.cbFichierChange(Sender: TObject);
@@ -211,20 +222,26 @@ end;
 procedure TForm1.FormShow(Sender: TObject);
 begin
   regexZ := tRegex.Create('\b\w*Z\b');
+  pause := false;
   cbFichierChange(sender);
 end;
 
-function TForm1.isAllZ(Keys: tList<String>): boolean;
+function TForm1.isAllZ(Keys: tList<string>): boolean;
 var
-  keyEnum : TEnumerator<string>;
+  keyEnum: TEnumerator<string>;
+  str: string;
 begin
-   result := true;
-   keyEnum := keys.GetEnumerator();
-   while keyEnum.MoveNext do
-   begin
+  if Memo2.Lines.Count = high(Memo2.Lines.Count)-1 then
+  Memo2.Clear;
+
+  Memo2.Lines.Add(string.Join('    ', Keys.ToArray()));
+  result := true;
+  keyEnum := keys.GetEnumerator();
+  while keyEnum.MoveNext do
+  begin
     result := result and regexZ.isMatch(keyEnum.Current);
-   end;
-   Application.ProcessMessages;
+  end;
+  keyEnum.Free;
 
 end;
 
@@ -251,4 +268,4 @@ begin
 end;
 
 end.
-
+                    ²

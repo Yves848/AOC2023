@@ -68,6 +68,7 @@ object Form1: TForm1
     Anchors = [akLeft, akTop, akRight, akBottom]
     Lines.Strings = (
       'Memo2')
+    ScrollBars = ssVertical
     TabOrder = 2
   end
   object Button1: TButton
@@ -87,5 +88,14 @@ object Form1: TForm1
     Caption = 'Part2'
     TabOrder = 4
     OnClick = Button2Click
+  end
+  object Button3: TButton
+    Left = 488
+    Top = 8
+    Width = 137
+    Height = 25
+    Caption = 'Pause'
+    TabOrder = 5
+    OnClick = Button3Click
   end
 end
