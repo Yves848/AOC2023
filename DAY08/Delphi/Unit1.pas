@@ -1,4 +1,4 @@
-unit Unit1;
+﻿unit Unit1;
 
 interface
 
@@ -25,6 +25,8 @@ type
     Label1: TLabel;
     lblProgres: TLabel;
     Button3: TButton;
+    mDirections: TMemo;
+    MKeys: TMemo;
     procedure cbFichierChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -35,12 +37,14 @@ type
     directions: tarray<char>;
     nodes: tDictionary<string, tarray<string>>;
     nodesGhost: tGhostDictionary;
+    GhostKeys: tlist<string>;
     regexZ: tregex;
 
     procedure CreeDirections(line: string);
     procedure CreeNodes(line: string);
     procedure parsefile;
     function isAllZ(Keys: tList<string>): boolean;
+    function isAllA(Keys: tList<string>): boolean;
   public
     { Public declarations }
     pause: boolean;
@@ -93,7 +97,6 @@ end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 var
-  ghostEnum: TEnumerator<string>;
   i: integer;
   iDir: integer;
   keys: tlist<string>;
@@ -102,21 +105,17 @@ var
   pNode: tArray<string>;
   nexts: tlist<string>;
 begin
+  Memo2.Clear;
   i := 0;
   iDir := low(directions);
-  keys := tlist<string>.create;
-
-  ghostEnum := nodesGhost.Keys.GetEnumerator();
-  while ghostEnum.MoveNext do
-  begin
-    keys.Add(ghostEnum.Current);
-  end;
-  Memo2.Lines.Add(string.Join('   ', Keys.ToArray()));
-  while true do
+  keys := tlist<string>.create(GhostKeys.ToArray);
+  while (not isAllZ(keys)) do
   begin
     while (Pause) do
       Application.ProcessMessages;
+
     nexts := tlist<string>.create;
+    //mDirections.Lines.Add(directions[iDir]);
     for key in keys do
     begin
       nodes.TryGetValue(key, pnode);
@@ -133,12 +132,11 @@ begin
           end;
       end;
     end;
+    //Memo2.Lines.Add(directions[iDir] + ' => ' + string.Join('   ', nexts.ToArray()));
     keys.Free;
     keys := tlist<string>.create(nexts);
     Nexts.Free;
     inc(i);
-    if isAllZ(keys) then
-      break;
     if (i mod 100 = 0) then
     begin
       lblProgres.caption := i.ToString();
@@ -147,7 +145,6 @@ begin
     inc(iDir);
     if (iDir > high(directions)) then
       iDir := low(directions);
-
   end;
 
   memo2.Lines.Add(i.ToString());
@@ -187,7 +184,7 @@ begin
   if (line.Trim() <> '') then
   begin
     regEx := tRegex.create('\b\w{3}\b');
-    regEx2 := tRegex.Create('\b\w*A\b');
+    regEx2 := tRegex.Create('^\b\w*A\b');
     Matches := regEx.Matches(line);
     I := 0;
     for match in Matches do
@@ -221,20 +218,20 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
-  regexZ := tRegex.Create('\b\w*Z\b');
+  regexZ := tRegex.Create('^\b\w*Z\b');
   pause := false;
   cbFichierChange(sender);
 end;
 
-function TForm1.isAllZ(Keys: tList<string>): boolean;
+function TForm1.isAllA(Keys: tList<string>): boolean;
 var
   keyEnum: TEnumerator<string>;
   str: string;
 begin
-  if Memo2.Lines.Count = high(Memo2.Lines.Count)-1 then
-  Memo2.Clear;
+  if MKeys.Lines.Count = high(MKeys.Lines.Count) - 1 then
+    MKeys.Clear;
 
-  Memo2.Lines.Add(string.Join('    ', Keys.ToArray()));
+  MKeys.Lines.Add(string.Join(' || ', Keys.ToArray()));
   result := true;
   keyEnum := keys.GetEnumerator();
   while keyEnum.MoveNext do
@@ -245,16 +242,35 @@ begin
 
 end;
 
+function TForm1.isAllZ(Keys: tList<string>): boolean;
+var
+  keyEnum: TEnumerator<string>;
+  str: string;
+begin
+  result := true;
+  keyEnum := keys.GetEnumerator();
+  while (result and keyEnum.MoveNext) do
+  begin
+    result := result and regexZ.isMatch(keyEnum.Current);
+  end;
+  keyEnum.Free;
+end;
+
 procedure TForm1.parsefile;
 var
   str: string;
   res: tarray<string>;
   i: integer;
+  ghostEnum: TEnumerator<string>;
 begin
+  mKeys.Clear;
   str := memo1.Lines.text;
   res := str.Split([L]);
   directions := nil;
   creeDirections(res[0]);
+  if GhostKeys <> nil then
+    FreeandNil(GhostKeys);
+  GhostKeys := tlist<string>.create;
   nodes.Free;
   nodesGhost.Free;
   Nodes := tDictionary < string, tarray<string> > .create;
@@ -265,7 +281,15 @@ begin
     creeNodes(res[i]);
     inc(i);
   end;
+  ghostEnum := nodesGhost.Keys.GetEnumerator();
+  while ghostEnum.MoveNext do
+  begin
+    if (ghostEnum.Current.Trim() <> '') then
+      GhostKeys.Add(ghostEnum.Current);
+  end;
+  MKeys.Lines.Add(string.Join(' | ', GhostKeys.ToArray()));
 end;
 
 end.
-                    �
+²
+
