@@ -104,50 +104,58 @@ var
   next: string;
   pNode: tArray<string>;
   nexts: tlist<string>;
+  GhostEnum: tEnumerator<string>;
 begin
   Memo2.Clear;
-  i := 0;
+
   iDir := low(directions);
-  keys := tlist<string>.create(GhostKeys.ToArray);
-  while (not isAllZ(keys)) do
+  Memo2.Lines.Add(timetostr(now));
+  GhostEnum := GhostKeys.GetEnumerator();
+  while GhostEnum.MoveNext do
   begin
-    while (Pause) do
-      Application.ProcessMessages;
-
-    nexts := tlist<string>.create;
-    //mDirections.Lines.Add(directions[iDir]);
-    for key in keys do
+    keys := tlist<string>.create([GhostEnum.Current]);
+    i := 0;
+    while (not isAllZ(keys)) do
     begin
-      nodes.TryGetValue(key, pnode);
-      case directions[iDir] of
-        'L':
-          begin
-            next := pNode[0];
-            nexts.Add(next);
-          end;
-        'R':
-          begin
-            next := pNode[1];
-            nexts.Add(next);
-          end;
+      while (Pause) do
+        Application.ProcessMessages;
+
+      nexts := tlist<string>.create;
+      //mDirections.Lines.Add(directions[iDir]);
+      for key in keys do
+      begin
+        nodes.TryGetValue(key, pnode);
+        case directions[iDir] of
+          'L':
+            begin
+              next := pNode[0];
+              nexts.Add(next);
+            end;
+          'R':
+            begin
+              next := pNode[1];
+              nexts.Add(next);
+            end;
+        end;
       end;
+      //Memo2.Lines.Add(directions[iDir] + ' => ' + string.Join('   ', nexts.ToArray()));
+      keys.Free;
+      keys := tlist<string>.create(nexts);
+      Nexts.Free;
+      inc(i);
+      if (i mod 100 = 0) then
+      begin
+        lblProgres.caption := i.ToString();
+        application.ProcessMessages;
+      end;
+      inc(iDir);
+      if (iDir > high(directions)) then
+        iDir := low(directions);
     end;
-    //Memo2.Lines.Add(directions[iDir] + ' => ' + string.Join('   ', nexts.ToArray()));
-    keys.Free;
-    keys := tlist<string>.create(nexts);
-    Nexts.Free;
-    inc(i);
-    if (i mod 100 = 0) then
-    begin
-      lblProgres.caption := i.ToString();
-      application.ProcessMessages;
-    end;
-    inc(iDir);
-    if (iDir > high(directions)) then
-      iDir := low(directions);
+    Memo2.Lines.Add(directions[iDir] + ' => ' + string.Join('   ', keys.ToArray()));
+    memo2.Lines.Add(i.ToString());
   end;
-
-  memo2.Lines.Add(i.ToString());
+  Memo2.Lines.Add(timetostr(now));
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);

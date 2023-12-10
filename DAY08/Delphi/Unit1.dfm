@@ -60,7 +60,7 @@ object Form1: TForm1
       'Memo1')
     TabOrder = 1
     WordWrap = False
-    ExplicitWidth = 457
+    ExplicitWidth = 419
   end
   object Memo2: TMemo
     Left = 453
@@ -72,8 +72,8 @@ object Form1: TForm1
       'Memo2')
     ScrollBars = ssVertical
     TabOrder = 2
-    ExplicitLeft = 486
-    ExplicitHeight = 500
+    ExplicitLeft = 449
+    ExplicitHeight = 514
   end
   object Button1: TButton
     Left = 480
@@ -109,8 +109,8 @@ object Form1: TForm1
     Height = 301
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 6
-    ExplicitWidth = 457
-    ExplicitHeight = 177
+    ExplicitWidth = 424
+    ExplicitHeight = 300
   end
   object MKeys: TMemo
     Left = 453
@@ -120,7 +120,7 @@ object Form1: TForm1
     Anchors = [akRight, akBottom]
     ScrollBars = ssVertical
     TabOrder = 7
-    ExplicitLeft = 486
-    ExplicitTop = 576
+    ExplicitLeft = 449
+    ExplicitTop = 577
   end
 end
