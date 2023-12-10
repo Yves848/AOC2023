@@ -47,6 +47,7 @@ object Form1: TForm1
       Align = alRight
       Caption = 'Part 2'
       TabOrder = 1
+      OnClick = btnPart2Click
       ExplicitLeft = 932
     end
     object btnPart1: TButton

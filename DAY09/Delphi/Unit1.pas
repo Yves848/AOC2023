@@ -23,6 +23,7 @@ type
     procedure btnPart1Click(Sender: TObject);
     function sum(ar: tlist<integer>): boolean;
     procedure cbFichierChange(Sender: TObject);
+    procedure btnPart2Click(Sender: TObject);
   private
     { Private declarations }
     regEx: tRegex;
@@ -114,6 +115,92 @@ begin
   end;
   list.Free;
   memo1.Lines.Add(somme.ToString);
+end;
+
+procedure TForm1.btnPart2Click(Sender: TObject);
+type
+  myList = tList<Integer>;
+var
+  line: myList;
+  line2: myList;
+
+  list: tlist<myList>;
+  Matches: TMatchCollection;
+  Match: tMatch;
+  regEx: tRegEx;
+
+  listEnum: TEnumerator<Mylist>;
+  list2: tEnumerator<integer>;
+  i, j, total: integer;
+  iline: integer;
+  somme: integer;
+
+  function makeline(list: mylist): string;
+  var
+     total : string;
+  begin
+    var ls: tlist<string> := tlist<string>.Create;
+    var enum: TEnumerator<Integer> := list.GetEnumerator();
+    while enum.MoveNext do
+    begin
+      ls.Add(enum.Current.ToString);
+    end;
+    total := ls[ls.Count-1];
+    ls.Delete(ls.Count-1);
+    result := string.Join(', ', ls.ToArray());
+    ls.Free;
+  end;
+begin
+  Memo1.Clear;
+  somme := 0;
+  iLine := 0;
+
+  while (iline <= mSource.items.Count - 1) do
+  begin
+    list := tlist < tlist<Integer> > .Create;
+    line := makeIntArray(mSource.items[iline]);
+    //line := makeIntArray(mSource.items[mSource.ItemIndex]);
+    list.Add(line);
+    while (not sum(line)) do
+    begin
+      line := extrapole(list[list.Count - 1]);
+      list.Add(line);
+    end;
+
+    i := list.Count - 1;
+    total := 0;
+    while (i >= 0) do
+    begin
+      line := list[i];
+      if (i = list.Count -1) then
+      begin
+        line.Insert(0,0);
+      end
+      else begin
+       var v : integer := (line[0] - list[i+1][0]);
+       line.Insert(0,v);
+       if i = 0 then
+         total := total + v;
+
+      end;
+
+      //line.Add(total);
+      dec(i);
+    end;
+
+    //memo1.Lines.Add(total.ToString);
+    somme := somme + total;
+    i := 0;
+    while i < list.Count do
+    begin
+      Memo1.Lines.Add(makeline(list[i]));
+      inc(i);
+    end;
+    inc(iLine);
+  end;
+  list.Free;
+  memo1.Lines.Add('result ' + somme.ToString);
+
 end;
 
 procedure TForm1.cbFichierChange(Sender: TObject);
