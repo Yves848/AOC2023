@@ -1,6 +1,6 @@
 [string[]]$lines = (Get-Content -Path ..\Data.txt -Raw) -split "\n"
 
-[string]$cards= "AKQJT98765432";
+[string]$cards= "AKQT98765432J";
 [string]$let  = "ABCDEFGHIJKLM"
 
 $hands = [ordered]@{}
@@ -20,6 +20,7 @@ $lines | ForEach-Object {
     #"cards"= $line[0]
     "bet"= $line[1]
     "sorted" = ($card.ToCharArray() | Sort-Object) -join ''
+    "original" = $line[0]
     "poker" = 0
     "rank" = 0
   }
@@ -28,7 +29,7 @@ $lines | ForEach-Object {
 function determineHand(
   $hand
 ) {
- [string]$sorted = $hand["sorted"]
+ [string]$sorted = $hand
   if ($FiveOfAKind.isMatch($sorted)) {
     return 7
   }
@@ -56,7 +57,28 @@ function determineHand(
 
 $i = 0
 while ($i -lt $hands.Count) {
-  $hands[$i]["poker"] = determineHand -hand $hands[$i]
+  $hand = $hands[$i]["sorted"]
+  $original = $hands[$i]["original"]
+  if ($hand.contains('M')) {
+    $score = 0
+    $let.ToCharArray() | ForEach-Object {
+      if ($_ -ne 'M') {
+        $hand2 = (($hand -replace "M",$_).ToCharArray() | Sort-Object) -join ''
+        $n = determineHand -hand $hand2
+        if ($n -gt $score) {
+          $score = $n
+        }
+      }
+    }
+
+    $hands[$i]["poker"] = $score
+   
+    
+  }
+  else {
+    $hands[$i]["poker"] = determineHand -hand $hand
+  }
+  
   $i = $i + 1
 }
 
