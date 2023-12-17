@@ -1,0 +1,1 @@
+[string[]]$lines = (Get-Content -Path ..\Data.txt -Raw) -split "\n"
